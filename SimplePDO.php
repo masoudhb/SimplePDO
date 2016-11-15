@@ -1,5 +1,19 @@
 <?php
 
+/***********************************************************
+ *
+ * SimplePDO
+ *
+ * Version 1.0
+ *
+ * Masoud HassanBeygi
+ *
+ * http://masoudhb.ir/
+ * 
+ * https://github.com/masoudhb/
+ *
+ ***********************************************************/
+
 class SimplePDO {
 
 	protected $db;
