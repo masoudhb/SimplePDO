@@ -37,7 +37,7 @@ class SimplePDO {
 		return $data;
 	}
 
-	public function rows($table, $where = false) {
+	public function rows($table, $where = '') {
 		if ($table) {
 			$query = "SELECT * FROM $table";
 			if (is_array($where)) {
@@ -58,7 +58,7 @@ class SimplePDO {
 		return false;
 	}
 
-	public function select($table, $what = "*", $where = false, $order = false, $limit = false) {
+	public function select($table, $what = "*", $where = '', $order = '', $limit = '') {
 		if ($table) {
 			$query = "SELECT $what FROM $table";
 			if (is_array($where)) {
@@ -71,6 +71,8 @@ class SimplePDO {
 			if ($limit) {
 				$query .= " LIMIT $limit";
 			}
+			echo $query;
+			exit();
 			$stmt = $this->db->prepare($query);
 			if ($stmt) {
 				if (is_array($where) && is_array($dowhere['where_array'])) {
