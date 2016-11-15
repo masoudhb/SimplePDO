@@ -1,2 +1,2 @@
 # SimplePDO
-A very simple and safe class to work with PDO.
+With this class do any kind of CRUD in just one line.
