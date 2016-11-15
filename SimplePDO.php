@@ -14,32 +14,40 @@ class SimplePDO {
 		}
 	}
 
+	private static function where($query, $where) {
+		$query .= " WHERE ";
+		$where_array = array();
+		foreach ($where as $item) {
+			if (is_array($item)) {
+				if (array_key_exists($item[0], $where_array)) {
+					$val = $item[0].rand(100,999);
+					$query .= "$item[0]$item[1]:$val ";
+					$where_array[$val] = $item[2];
+				} else {
+					$query .= "$item[0]$item[1]:$item[0] ";
+					$where_array[$item[0]] = $item[2];
+				}
+			} else {
+				$query .= "$item ";
+			}
+		}
+		$query = trim($query);
+		$data['query'] = $query;
+		$data['where_array'] = $where_array;
+		return $data;
+	}
+
 	public function rows($table, $where = false) {
 		if ($table) {
 			$query = "SELECT * FROM $table";
 			if (is_array($where)) {
-				$query .= " WHERE ";
-				$where_array = array();
-				foreach ($where as $item) {
-					if (is_array($item)) {
-						if (array_key_exists($item[0], $where_array)) {
-							$val = $item[0].rand(100,999);
-							$query .= "$item[0]$item[1]:$val ";
-							$where_array[$val] = $item[2];
-						} else {
-							$query .= "$item[0]$item[1]:$item[0] ";
-							$where_array[$item[0]] = $item[2];
-						}
-					} else {
-						$query .= "$item ";
-					}
-				}
-				$query = trim($query);
+				$dowhere = SimplePDO::where($query, $where);
+				$query = $dowhere['query'];
 			}
 			$stmt = $this->db->prepare($query);
 			if ($stmt) {
-				if (is_array($where) && is_array($where_array)) {
-					$stmt->execute($where_array);
+				if (is_array($where) && is_array($dowhere['where_array'])) {
+					$stmt->execute($dowhere['where_array']);
 				} else {
 					$stmt->execute();
 				}
@@ -54,23 +62,8 @@ class SimplePDO {
 		if ($table) {
 			$query = "SELECT $what FROM $table";
 			if (is_array($where)) {
-				$query .= " WHERE ";
-				$where_array = array();
-				foreach ($where as $item) {
-					if (is_array($item)) {
-						if (array_key_exists($item[0], $where_array)) {
-							$val = $item[0].rand(100,999);
-							$query .= "$item[0]$item[1]:$val ";
-							$where_array[$val] = $item[2];
-						} else {
-							$query .= "$item[0]$item[1]:$item[0] ";
-							$where_array[$item[0]] = $item[2];
-						}
-					} else {
-						$query .= "$item ";
-					}
-				}
-				$query = trim($query);
+				$dowhere = SimplePDO::where($query, $where);
+				$query = $dowhere['query'];
 			}
 			if ($order) {
 				$query .= " ORDER BY $order[0] $order[1]";
@@ -80,8 +73,8 @@ class SimplePDO {
 			}
 			$stmt = $this->db->prepare($query);
 			if ($stmt) {
-				if (is_array($where) && is_array($where_array)) {
-					$stmt->execute($where_array);
+				if (is_array($where) && is_array($dowhere['where_array'])) {
+					$stmt->execute($dowhere['where_array']);
 				} else {
 					$stmt->execute();
 				}
@@ -119,25 +112,9 @@ class SimplePDO {
 				$update_array[$key] = $value;
 			}
 			$query = rtrim($query, ", ");
-			$query .= " WHERE ";
-			$where_array = array();
-			foreach ($where as $item) {
-				if (is_array($item)) {
-					if (array_key_exists($item[0], $where_array)) {
-						$val = $item[0].rand(100,999);
-						$query .= "$item[0]$item[1]:$val ";
-						$where_array[$val] = $item[2];
-					} else {
-						$query .= "$item[0]$item[1]:$item[0] ";
-						$where_array[$item[0]] = $item[2];
-					}
-				} else {
-					$query .= "$item ";
-				}
-			}
-			$query = trim($query);
-			$final_array = array_merge($update_array, $where_array);
-			$stmt = $this->db->prepare($query);
+			$dowhere = SimplePDO::where($query, $where);
+			$final_array = array_merge($update_array, $dowhere['where_array']);
+			$stmt = $this->db->prepare($dowhere['query']);
 			if ($stmt) {
 				$stmt->execute($final_array);
 				return true;
@@ -148,26 +125,11 @@ class SimplePDO {
 
 	public function delete($table, $where) {
 		if ($table && is_array($where)) {
-			$query = "DELETE FROM $table WHERE ";
-			$where_array = array();
-			foreach ($where as $item) {
-				if (is_array($item)) {
-					if (array_key_exists($item[0], $where_array)) {
-						$val = $item[0].rand(100,999);
-						$query .= "$item[0]$item[1]:$val ";
-						$where_array[$val] = $item[2];
-					} else {
-						$query .= "$item[0]$item[1]:$item[0] ";
-						$where_array[$item[0]] = $item[2];
-					}
-				} else {
-					$query .= "$item ";
-				}
-			}
-			$query = trim($query);
-			$stmt = $this->db->prepare($query);
+			$query = "DELETE FROM $table";
+			$dowhere = SimplePDO::where($query, $where);
+			$stmt = $this->db->prepare($dowhere['query']);
 			if ($stmt) {
-				$stmt->execute($where_array);
+				$stmt->execute($dowhere['where_array']);
 				return true;
 			}
 		}
