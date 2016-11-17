@@ -85,8 +85,6 @@ class SimplePDO {
 			if ($limit) {
 				$query .= " LIMIT $limit";
 			}
-			echo $query;
-			exit();
 			$stmt = $this->db->prepare($query);
 			if ($stmt) {
 				if (is_array($where) && is_array($dowhere['where_array'])) {
