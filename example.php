@@ -2,7 +2,7 @@
 
 require_once 'SimplePDO.php';
 
-$pdo = new SimplePDO('dbtest', 'root', '');
+$pdo = new SimplePDO('dbtest', 'root', 'root');
 
 $rows = $pdo->rows('tbltest', array(array('id', '>', 0), "AND", array('title', '=', 'abc')));
 var_dump($rows);
